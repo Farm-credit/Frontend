@@ -4,57 +4,55 @@ import { HandHelping, Accessibility, Plus } from 'lucide-react';
 
 export default function LandingPage() {
   return (
-    <div className="bg-gray-100 m-0 p-0 pt-6">
+    <div className="bg-gray-100 overflow-hidden m-0 p-0 pt-6">
       <Header />
       
       <section
-        className="relative rounded-[30px] overflow-hidden max-w-11/12 mx-auto bg-cover bg-center mt-8"
-        style={{ backgroundImage: "url('/Vector.png')", minHeight: '600px' }}
-      >
-        <img
-          src="/danmeyersfarm.png"
-          alt="Background farm landscape"
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.55)' }}
-          aria-hidden="true"
-        ></div>
-        <div
-  className="absolute inset-0 px-6 sm:px-10 md:px-16 lg:px-20 xl:px-2 py-12 flex flex-col justify-center mx-auto"
+  className="relative rounded-[30px] overflow-hidden max-w-11/12 mx-auto bg-cover bg-center mt-8"
+  style={{ backgroundImage: "url('/Vector.png')", minHeight: '800px' }}
+>
+  <img
+    src="/danmeyersfarm.png"
+    alt="Background farm landscape"
+    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+    aria-hidden="true"
+  />
+  <div
+    className="absolute inset-0"
+    style={{ backgroundColor: 'rgba(0, 0, 0, 0.55)' }}
+    aria-hidden="true"
+  ></div>
+<div
+  className="absolute inset-0 px-4 sm:px-6 md:px-10 lg:px-10 xl:px-2 flex flex-col justify-center mx-auto"
   style={{ maxWidth: '1200px' }}
 >
-  <div className="max-w-lg relative z-10 text-left"> {/* Added text-left for left alignment */}
-    <span className="inline-block text-white text-[12px] sm:text-[14px] font-semibold rounded-full border border-white px-3 py-[3px] mb-3 uppercase tracking-widest"> {/* Increased text size */}
-      EMPOWERING MODERN AGRICULTURE
-    </span>
-    <h1 className="text-white font-extrabold text-4xl sm:text-5xl md:text-6xl leading-tight mb-4"> {/* Increased text size */}
-      Empowering Farmers with
-      <br />
-      Blockchain &amp; AI
-    </h1>
-    <p className="text-yellow-400 text-base sm:text-lg mb-6 leading-relaxed font-medium"> {/* Increased text size */}
-      FarmCredit revolutionizes agriculture by leveraging blockchain and AI
-      to provide farmers with transparent, secure, and efficient access to
-      carbon credit markets.
-    </p>
-    <div className="flex space-x-4">
-      <button className="bg-green-400 hover:bg-green-500 text-black font-semibold text-sm sm:text-base rounded-full px-5 py-2"> {/* Increased button text size */}
-        Get Started
-      </button>
-      <button className="border border-white text-white text-sm sm:text-base rounded-full px-5 py-2 hover:bg-white hover:text-black transition"> {/* Increased button text size */}
-        Learn More
-      </button>
-    </div>
+<div className="max-w-5xl relative z-10 text-left">
+  <span className="inline-block text-white text-[10px] sm:text-[16px] font-semibold rounded-full border border-white px-3 py-[3px] mb-3 uppercase tracking-widest">
+    EMPOWERING MODERN AGRICULTURE
+  </span>
+  <h1 className="text-white font-extrabold text-5xl sm:text-6xl md:text-7xl leading-tight mb-4">
+    Empowering Farmers with Blockchain &amp; AI
+  </h1>
+  <p className="text-yellow-400 text-lg sm:text-xl mb-6 leading-relaxed font-medium max-w-md"> {/* Added max-w-md */}
+    FarmCredit revolutionizes agriculture by leveraging blockchain and AI
+    to provide farmers with transparent, secure, and efficient access to
+    carbon credit markets.
+  </p>
+  <div className="flex space-x-4">
+    <button className="bg-green-400 hover:bg-green-500 text-black font-semibold text-base sm:text-lg rounded-full px-5 py-2">
+      Get Started
+    </button>
+    <button className="border border-white text-white text-base sm:text-lg rounded-full px-5 py-2 hover:bg-white hover:text-black transition">
+      Learn More
+    </button>
   </div>
 </div>
-        <div
-          className="absolute bottom-0 left-0 w-[280px] h-[280px] rounded-tl-[30px] rounded-bl-[30px] pointer-events-none"
-          style={{ mixBlendMode: 'multiply', opacity: 0.15 }}
-          aria-hidden="true"
-        ></div>
+</div>
+  <div
+    className="absolute bottom-0 left-0 w-[280px] h-[280px] rounded-tl-[30px] rounded-bl-[30px] pointer-events-none"
+    style={{ mixBlendMode: 'multiply', opacity: 0.15 }}
+    aria-hidden="true"
+  ></div>
 </section>
 <section
   className="relative min-h-1/3 bg-cover bg-center grid place-items-center p-20"
@@ -219,43 +217,43 @@ export default function LandingPage() {
         </div>
       </section>
       <section className="bg-[#0a1a0a]">
-        <div className="max-w-7xl mx-auto py-28">
-          <div
-            className="flex flex-col md:flex-row items-center bg-[#3a5200] max-w-11/12 mx-auto rounded-none md:rounded-none overflow-hidden"
-          >
-            <div className="md:flex-1 px-6 py-8 md:py-12 text-white">
-              <h2 className="font-semibold text-xl md:text-2xl leading-snug max-w-md"> {/* Increased text size */}
-                Are you ready to elevate your practices and grow your income?
-              </h2>
-              <p className="text-sm md:text-base mt-2 text-[#b7b7b7] max-w-xs"> {/* Increased text size */}
-                FarmCredit is your gateway to the future of agriculture.
-              </p>
-              <button
-                className="mt-4 bg-[#a3d55d] text-[#1a3a00] text-sm font-semibold rounded-full px-4 py-2 hover:bg-[#8cc43a] transition-colors" 
-                type="button"
-              >
-                Join Waitlist
-              </button>
-            </div>
-            <div className="md:flex-1 slant-left overflow-hidden">
-              <img
-                alt="Man wearing orange cap and green apron watering plants in a garden with green and yellow bushes and blue sky with clouds"
-                className="w-full h-full object-cover"
-                height="180"
-                src="/garden.jpg"
-                width="400"
-              />
-            </div>
-          </div>
-        </div>
-      </section>
+  <div className="w-full mx-auto py-28 px-4 md:px-12"> {/* Added horizontal padding */}
+    <div
+      className="flex flex-col md:flex-row items-center bg-[#3a5200] w-full mx-auto rounded-none md:rounded-none overflow-hidden" 
+    >
+      <div className="md:flex-1 px-10 py-8 md:py-12 text-white">
+        <h2 className="font-semibold text-3xl md:text-4xl leading-snug max-w-md"> {/* Increased text size */}
+          Are you ready to elevate your practices and grow your income?
+        </h2>
+        <p className="text-lg md:text-xl mt-2 text-[#b7b7b7] max-w-xs"> {/* Increased text size */}
+          FarmCredit is your gateway to the future of agriculture.
+        </p>
+        <button
+          className="mt-4 bg-[#a3d55d] text-[#1a3a00] text-base font-semibold rounded-full px-4 py-2 hover:bg-[#8cc43a] transition-colors" 
+          type="button"
+        >
+          Join Waitlist
+        </button>
+      </div>
+      <div className="md:flex-1 slant-left overflow-hidden">
+        <img
+          alt="Man wearing orange cap and green apron watering plants in a garden with green and yellow bushes and blue sky with clouds"
+          className="w-full h-full object-cover"
+          height="180"
+          src="/garden.jpg"
+          width="400"
+        />
+      </div>
+    </div>
+  </div>
+</section>
       <section className="bg-[#dfe0db] text-[#0f1f35] min-h-[50vh] flex items-center justify-center py-28 p-6">
   <div className="max-w-7xl w-full">
     <div className="max-w-xl mb-10">
-      <h2 className="text-4xl font-medium leading-tight mb-4"> {/* Increased heading size */}
+      <h2 className="text-5xl font-medium leading-tight mb-4"> {/* Increased heading size */}
         Why adopt our<br />technology?
       </h2>
-      <p className="text-sm leading-5 text-[#0f1f35] max-w-xs"> {/* Fixed comment syntax */}
+      <p className="text-base leading-6 text-[#0f1f35] max-w-xs"> {/* Increased paragraph size */}
         We combine proprietary blockchain infrastructure, industry-specific expertise, and a tailored approach to deliver real value in a rapidly evolving digital world.
       </p>
     </div>
@@ -264,10 +262,10 @@ export default function LandingPage() {
         <div className="text-sm mb-3 text-[#a9c6cc] flex items-center gap-2">
           <HandHelping className="w-7 h-7" />
         </div>
-        <h3 className="text-lg font-semibold mb-2 text-white"> {/* Increased heading size */}
+        <h3 className="text-xl font-semibold mb-2 text-white"> {/* Increased heading size */}
           Hands-on support & guidance
         </h3>
-        <p className="text-sm leading-5 text-[#a9c6cc]"> {/* Increased paragraph size */}
+        <p className="text-base leading-6 text-[#a9c6cc]"> {/* Increased paragraph size */}
           Expert agronomy guidance and ongoing assistance to help you succeed in your carbon farming journey.
         </p>
       </div>
@@ -275,10 +273,10 @@ export default function LandingPage() {
         <div className="text-sm mb-3 text-[#0f1f35] flex items-center gap-2">
           <Accessibility className="w-7 h-7" />
         </div>
-        <h3 className="text-lg font-semibold mb-2 text-[#0f1f35]"> {/* Increased heading size */}
+        <h3 className="text-xl font-semibold mb-2 text-[#0f1f35]"> {/* Increased heading size */}
           Access to required resources & inputs
         </h3>
-        <p className="text-sm leading-5 text-[#0f1f35]"> {/* Increased paragraph size */}
+        <p className="text-base leading-6 text-[#0f1f35]"> {/* Increased paragraph size */}
           Gain the tools you need and unlock new income through fully transparent, high-integrity certified carbon credits – ensuring trust, accountability, and real impact every step of the way.
         </p>
       </div>
@@ -286,105 +284,105 @@ export default function LandingPage() {
         <div className="text-sm mb-3 text-[#0f1f35] flex items-center gap-2">
           <Plus className="w-7 h-7" />
         </div>
-        <h3 className="text-lg font-semibold mb-2 text-[#0f1f35]"> {/* Increased heading size */}
+        <h3 className="text-xl font-semibold mb-2 text-[#0f1f35]"> {/* Increased heading size */}
           Additional carbon revenue stream
         </h3>
-        <p className="text-sm leading-5 text-[#0f1f35]"> {/* Increased paragraph size */}
+        <p className="text-base leading-6 text-[#0f1f35]"> {/* Increased paragraph size */}
           Unlock an additional revenue stream through certified, transparent, and farmer-first carbon credits designed to reward your sustainable practices.
         </p>
       </div>
     </div>
   </div>
 </section>
-      <section className="bg-[#07303a] min-h-[50vh] flex items-center justify-center py-28 p-6">
-        <div className="max-w-7xl w-full">
-          <h2 className="text-center text-white text-4xl font-medium mb-10"> {/* Increased heading size */}
-            How it Works
-          </h2>
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center">
-            <div className="bg-[#dccda7] rounded-lg p-6 max-w-xs sm:max-w-[320px] flex flex-col justify-start shadow-lg"> {/* Added shadow */}
-              <div className="flex items-start gap-3">
-                <div className="w-1.5 bg-[#d9a12f] rounded-sm mt-1"></div>
-                <div>
-                  <p className="font-extrabold text-lg leading-6 text-black mb-1"> {/* Increased text size */}
-                    Plan & Adopt
-                  </p>
-                  <p className="text-sm leading-5 text-black max-w-[270px]"> {/* Increased text size */}
-                    Your journey starts with a personalized conversation. Work with
-                    FarmCredit experts to build a carbon farming plan tailored to your
-                    land. We support you with the inputs, knowledge, and tools needed
-                    to adopt sustainable practices.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-[#064a5e] rounded-lg p-6 max-w-xs sm:max-w-[320px] flex flex-col justify-start shadow-lg"> {/* Added shadow */}
-              <div className="flex items-start gap-3">
-                <div className="w-1.5 bg-[#d9a12f] rounded-sm mt-1"></div>
-                <div>
-                  <p className="font-extrabold text-lg leading-6 text-white mb-1"> {/* Increased text size */}
-                    Certify
- </p>
-                  <p className="text-sm leading-5 text-white max-w-[270px]"> {/* Increased text size */}
-                    As you implement regenerative methods, FarmCredit helps track and
-                    verify your progress—ensuring your efforts meet the standards for
-                    certified carbon credits.
-                  </p>
-                </div>
-              </div>
-            </div>
-            <div className="bg-[#d9d9d9] rounded-lg p-6 max-w-xs sm:max-w-[320px] flex flex-col justify-start shadow-lg"> {/* Added shadow */}
-              <div className="flex items-start gap-3">
-                <div className="w-1.5 bg-[#d9a12f] rounded-sm mt-1"></div>
-                <div>
-                  <p className="font-extrabold text-lg leading-6 text-black mb-1"> {/* Increased text size */}
-                    Get Paid
-                  </p>
-                  <p className="text-sm leading-5 text-black max-w-[270px]"> {/* Increased text size */}
-                    Once your credits are certified, companies purchase them—and you
-                    get paid. With FarmCredit, your commitment to sustainability
-                    directly rewards you.
-                  </p>
-                </div>
-              </div>
-            </div>
+<section className="bg-[#07303a] min-h-[50vh] flex items-center justify-center py-28 p-6">
+  <div className="max-w-7xl w-full">
+    <h2 className="text-center text-white text-5xl font-medium mb-10"> {/* Increased heading size */}
+      How it Works
+    </h2>
+    <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center">
+      <div className="bg-[#dccda7] rounded-lg p-6 mx-auto sm:mx-0 max-w-xs sm:max-w-[320px] flex flex-col justify-start shadow-lg">
+        <div className="flex items-start gap-3">
+          <div className="w-1.5 bg-[#d9a12f] rounded-sm h-full"></div> {/* Set height to full */}
+          <div>
+            <p className="font-extrabold text-xl leading-7 text-black mb-1"> {/* Increased text size */}
+              Plan & Adopt
+            </p>
+            <p className="text-base leading-6 text-black max-w-[270px]"> {/* Increased text size */}
+              Your journey starts with a personalized conversation. Work with
+              FarmCredit experts to build a carbon farming plan tailored to your
+              land. We support you with the inputs, knowledge, and tools needed
+              to adopt sustainable practices.
+            </p>
           </div>
         </div>
-      </section>
-      <section className="bg-[#E3E4E3] min-h-[50vh] flex items-center justify-center py-28 px-28">
-        <div className="w-full mx-auto"> {/* Changed max-w-3xl to w-full */}
-          <h2 className="font-extrabold text-2xl leading-8 text-[#2B2B2B] mb-4"> {/* Increased heading size */}
-            FAQs
-          </h2>
-          <hr className="border-t border-[#8B8B8B] mb-4 w-full" /> {/* Added w-full to the border */}
-          <div className="divide-y divide-[#8B8B8B] w-full"> {/* Added w-full to the container */}
-            <div className="flex justify-between items-center py-3 text-lg leading-6 text-[#2B2B2B]"> {/* Increased text size */}
-              <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
-                What models does Coda AI leverage?
-              </span>
-              <Plus className="w-7 h-7 text-[#2B2B2B]" />
-            </div>
-            <div className="flex justify-between items-center py-3 text-lg leading-6 text-[#2B2B2B]"> {/* Increased text size */}
-              <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
-                How does Coda AI use my data?
-              </span>
-              <Plus className="w-7 h-7 text-[#2B2B2B]" />
-            </div>
-            <div className="flex justify-between items-center py-3 text-lg leading-6 text-[#2B2B2B]"> {/* Increased text size */}
-              <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
-                How can I learn more about using Coda AI for work?
-              </span>
-              <Plus className="w-7 h-7 text-[#2B2B2B]" />
-            </div>
-            <div className="flex justify-between items-center py-3 text-lg leading-6 text-[#2B2B2B]"> {/* Increased text size */}
-              <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
-                Was there a Coda AI Beta?
-              </span>
-              <Plus className="w-7 h-7 text-[#2B2B2B]" />
-            </div>
+      </div>
+      <div className="bg-[#064a5e] rounded-lg p-6 mx-auto sm:mx-0 max-w-xs sm:max-w-[320px] flex flex-col justify-start shadow-lg">
+        <div className="flex items-start gap-3">
+          <div className="w-1.5 bg-[#d9a12f] rounded-sm h-full"></div> {/* Set height to full */}
+          <div>
+            <p className="font-extrabold text-xl leading-7 text-white mb-1"> {/* Increased text size */}
+              Certify
+            </p>
+            <p className="text-base leading-6 text-white max-w-[270px]"> {/* Increased text size */}
+              As you implement regenerative methods, FarmCredit helps track and
+              verify your progress—ensuring your efforts meet the standards for
+              certified carbon credits.
+            </p>
           </div>
         </div>
-      </section>
+      </div>
+      <div className="bg-[#d9d9d9] rounded-lg p-6 mx-auto sm:mx-0 max-w-xs sm:max-w-[320px] flex flex-col justify-start shadow-lg">
+        <div className="flex items-start gap-3">
+          <div className="w-1.5 bg-[#d9a12f] rounded-sm h-full"></div> {/* Set height to full */}
+          <div>
+            <p className="font-extrabold text-xl leading-7 text-black mb-1"> {/* Increased text size */}
+              Get Paid
+            </p>
+            <p className="text-base leading-6 text-black max-w-[270px]"> {/* Increased text size */}
+              Once your credits are certified, companies purchase them—and you
+              get paid. With FarmCredit, your commitment to sustainability
+              directly rewards you.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section className="bg-[#E3E4E3] min-h-[50vh] flex items-center justify-center py-28 px-28">
+<div className="w-full mx-auto"> {/* Changed max-w-3xl to w-full */}
+  <h2 className="font-extrabold text-3xl leading-9 text-[#2B2B2B] mb-4"> {/* Increased heading size */}
+    FAQs
+  </h2>
+  <hr className="border-t border-[#8B8B8B] mb-4 w-full" /> {/* Added w-full to the border */}
+  <div className="divide-y divide-[#8B8B8B] w-full"> {/* Added w-full to the container */}
+    <div className="flex justify-between items-center py-4 text-xl leading-7 text-[#2B2B2B] w-full"> {/* Added w-full */}
+      <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
+        What models does Coda AI leverage?
+      </span>
+      <Plus className="w-7 h-7 text-[#2B2B2B]" />
+    </div>
+    <div className="flex justify-between items-center py-4 text-xl leading-7 text-[#2B2B2B] w-full"> {/* Added w-full */}
+      <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
+        How does Coda AI use my data?
+      </span>
+      <Plus className="w-7 h-7 text-[#2B2B2B]" />
+    </div>
+    <div className="flex justify-between items-center py-4 text-xl leading-7 text-[#2B2B2B] w-full"> {/* Added w-full */}
+      <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
+        How can I learn more about using Coda AI for work?
+      </span>
+      <Plus className="w-7 h-7 text-[#2B2B2B]" />
+    </div>
+    <div className="flex justify-between items-center py-4 text-xl leading-7 text-[#2B2B2B] w-full"> {/* Added w-full */}
+      <span className="w-full"> {/* Changed max-w-[70%] to w-full */}
+        Was there a Coda AI Beta?
+      </span>
+      <Plus className="w-7 h-7 text-[#2B2B2B]" />
+    </div>
+  </div>
+</div>
+</section>
       
       <Footer />
     </div>
