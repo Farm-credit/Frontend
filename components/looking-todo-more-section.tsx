@@ -7,10 +7,10 @@ interface LookingToDoMoreSectionProps {
   onPlantTrees?: () => void;
 }
 
-const LookingToDoMoreSection: React.FC<LookingToDoMoreSectionProps> = ({
+export function LookingToDoMoreSection({
   backgroundImage = '/farm-land.jpg',
   
-}) => {
+}: LookingToDoMoreSectionProps)  {
   
   const handlePlantTrees = () => {
     // router.push('/plant-trees');
@@ -57,4 +57,3 @@ const LookingToDoMoreSection: React.FC<LookingToDoMoreSectionProps> = ({
   );
 };
 
-export default LookingToDoMoreSection;
