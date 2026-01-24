@@ -2,6 +2,7 @@
 
 import { Project } from '@/types';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProjectCardProps {
   project: Project;
@@ -13,23 +14,17 @@ export default function ProjectCard({ project }: ProjectCardProps) {
 
   return (
     <div className="group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 flex flex-col h-full">
-      {/* Project Image */}
-      <div className="relative h-48 w-full overflow-hidden bg-gray-200 flex-shrink-0">
-        <img 
+      <div className="relative h-48 w-full overflow-hidden bg-gradient-to-br from-lime-500 to-orange-500 flex-shrink-0">
+        <Image 
           src={project.imageUrl} 
           alt={project.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => {
-            // Fallback gradient if image fails to load
-            e.currentTarget.style.display = 'none';
-          }}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        {/* Fallback gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-lime-500 to-orange-500 -z-10" />
         
-        {/* Status Badge */}
         {project.status === 'completed' && (
-          <div className="absolute top-3 right-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+          <div className="absolute top-3 right-3 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full z-10">
             Completed ✓
           </div>
         )}

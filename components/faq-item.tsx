@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 
 // FAQ Item Component
 interface FAQItemProps {

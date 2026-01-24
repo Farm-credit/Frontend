@@ -19,15 +19,13 @@ export default function ProjectFiltersComponent({ onFilterChange }: ProjectFilte
   const [minPrice, setMinPrice] = useState<number>(priceRange.min);
   const [maxPrice, setMaxPrice] = useState<number>(priceRange.max);
 
-  // Update parent whenever filters change
   useEffect(() => {
     onFilterChange({
       regions: selectedRegions,
       treeTypes: selectedTreeTypes,
       priceRange: { min: minPrice, max: maxPrice },
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRegions, selectedTreeTypes, minPrice, maxPrice]);
+  }, [selectedRegions, selectedTreeTypes, minPrice, maxPrice, onFilterChange]);
 
   const handleRegionToggle = (region: string) => {
     setSelectedRegions(prev =>
@@ -102,7 +100,7 @@ export default function ProjectFiltersComponent({ onFilterChange }: ProjectFilte
 
         {/* Region Filter */}
         <div className="mb-6">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">Region</h4>
+          <h4 className="text-sm font-semibold text-gray-700 mb-3">Country</h4>
           <div className="space-y-2 max-h-48 overflow-y-auto">
             {countries.map((country) => (
               <label key={country} className="flex items-center gap-2 cursor-pointer group">

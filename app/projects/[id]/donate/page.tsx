@@ -1,5 +1,6 @@
 import { mockProjects } from '@/lib/mock-projects';
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 
 interface DonatePageProps {
@@ -46,12 +47,13 @@ export default async function DonatePage({ params }: DonatePageProps) {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="grid md:grid-cols-2 gap-8 mb-12">
-          {/* Project Image */}
           <div className="relative h-80 rounded-xl overflow-hidden shadow-lg bg-gradient-to-br from-lime-500 to-orange-500">
-            <img 
+            <Image 
               src={project.imageUrl} 
               alt={project.name}
-              className="w-full h-full object-cover"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
             />
           </div>
 
