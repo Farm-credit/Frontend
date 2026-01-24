@@ -2,14 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  TokenCard,
-  ListTokensForm,
-  BuyModal,
-  UserListingCard,
-  EmptyState,
-  SectionHeader,
-} from '@/components/marketplace-components';
-import {
   fetchAvailableTokens,
   fetchUserListings,
   createListing,
@@ -18,6 +10,7 @@ import {
   connectWallet,
   retryOperation,
 } from '@/lib/stellar-integration';
+import { toast, ToastContainer } from '@/components/toast';
 
 interface Token {
   id: string;
@@ -60,12 +53,19 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     const initializeWallet = async () => {
+      // Small delay to ensure Freighter is injected
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
       try {
         const key = await connectWallet();
         if (key) {
           setPublicKey(key);
+          setWalletError(null);
         } else {
-          setWalletError('Freighter wallet not detected. Please install it to use the marketplace.');
+          // Don't set error immediately - user might need to click connect
+          if (typeof window !== 'undefined' && !window.freighter) {
+            setWalletError('Freighter wallet not detected. Please install it to use the marketplace.');
+          }
         }
       } catch (error) {
         setWalletError('Failed to connect wallet: ' + (error as Error).message);
@@ -74,6 +74,53 @@ export default function MarketplacePage() {
 
     initializeWallet();
   }, []);
+
+  const handleConnectWallet = async () => {
+    setWalletConnecting(true);
+    setWalletError(null);
+    
+    // First, check if Freighter is available
+    if (typeof window === 'undefined') {
+      setWalletError('Browser environment not detected');
+      setWalletConnecting(false);
+      return;
+    }
+
+    // Log diagnostic info
+    console.log('Freighter detection:', {
+      windowFreighter: !!window.freighter,
+      userAgent: navigator.userAgent,
+    });
+
+    try {
+      const key = await connectWallet();
+      if (key) {
+        setPublicKey(key);
+        toast.success('Wallet connected successfully!');
+      } else {
+        // More detailed error messages
+        if (!window.freighter) {
+          setWalletError(
+            'Freighter extension not detected. Please:\n' +
+            '1. Install Freighter from freighter.app\n' +
+            '2. Enable the extension in your browser\n' +
+            '3. Refresh this page'
+          );
+          toast.error('Freighter wallet not found. Please install the extension.');
+        } else {
+          setWalletError('Failed to connect. Please:\n1. Open Freighter and unlock it\n2. Make sure Testnet is selected\n3. Try again');
+          toast.error('Failed to connect. Make sure Freighter is unlocked and on Testnet.');
+        }
+      }
+    } catch (error) {
+      const errorMsg = (error as Error).message;
+      console.error('Connection error:', error);
+      setWalletError('Failed to connect wallet: ' + errorMsg);
+      toast.error('Failed to connect wallet: ' + errorMsg);
+    } finally {
+      setWalletConnecting(false);
+    }
+  };
 
   useEffect(() => {
     loadMarketplaceData();
@@ -92,8 +139,10 @@ export default function MarketplacePage() {
       setTokensForSale(tokens);
     } catch (error) {
       console.error('Failed to load marketplace data:', error);
-      // Show fallback message but don't block UI
-      alert('Warning: Could not load tokens from Stellar testnet. Make sure testnet is accessible.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.warning(`Could not load tokens from Stellar testnet: ${errorMessage}`);
+      // Set empty array on error so UI shows empty state instead of blocking
+      setTokensForSale([]);
     } finally {
       setLoadingTokens(false);
     }
@@ -115,12 +164,12 @@ export default function MarketplacePage() {
 
   const handleListTokens = async () => {
     if (!publicKey) {
-      alert('Please connect your wallet first');
+      toast.warning('Please connect your wallet first');
       return;
     }
 
     if (!listAmount || !listPrice) {
-      alert('Please fill in all fields');
+      toast.warning('Please fill in all fields');
       return;
     }
 
@@ -128,7 +177,7 @@ export default function MarketplacePage() {
     const price = parseFloat(listPrice);
 
     if (amount <= 0 || price <= 0) {
-      alert('Amount and price must be greater than 0');
+      toast.warning('Amount and price must be greater than 0');
       return;
     }
 
@@ -139,17 +188,17 @@ export default function MarketplacePage() {
       );
 
       if (result) {
-        alert(`✅ Listing created successfully!\nTransaction: ${result.hash}`);
+        toast.success(`Listing created successfully! Transaction: ${result.hash}`);
         setListAmount('');
         setListPrice('');
         setShowListForm(false);
         await loadUserListings();
         await loadMarketplaceData();
       } else {
-        alert('❌ Failed to create listing. Please try again.');
+        toast.error('Failed to create listing. Please try again.');
       }
     } catch (error) {
-      alert('❌ Error creating listing: ' + (error as Error).message);
+      toast.error('Error creating listing: ' + (error as Error).message);
     } finally {
       setSubmittingList(false);
     }
@@ -157,7 +206,7 @@ export default function MarketplacePage() {
 
   const handleBuyClick = (token: Token) => {
     if (!publicKey) {
-      alert('Please connect your wallet first');
+      toast.warning('Please connect your wallet first');
       return;
     }
     setSelectedToken(token);
@@ -167,18 +216,18 @@ export default function MarketplacePage() {
 
   const handleConfirmBuy = async () => {
     if (!publicKey || !selectedToken) {
-      alert('Please enter an amount');
+      toast.warning('Please enter an amount');
       return;
     }
 
     const amount = parseFloat(buyAmount);
     if (!amount || amount <= 0) {
-      alert('Please enter a valid amount');
+      toast.warning('Please enter a valid amount');
       return;
     }
 
     if (amount > selectedToken.amount) {
-      alert('Amount exceeds available tokens');
+      toast.warning('Amount exceeds available tokens');
       return;
     }
 
@@ -189,23 +238,23 @@ export default function MarketplacePage() {
       );
 
       if (result) {
-        alert(`✅ Purchase successful!\nTransaction: ${result.hash}\nAmount: ${amount} CCT`);
+        toast.success(`Purchase successful! Transaction: ${result.hash}, Amount: ${amount} CCT`);
         setShowBuyModal(false);
         setBuyAmount('');
         await loadMarketplaceData();
       } else {
-        alert('❌ Failed to complete purchase. Please try again.');
+        toast.error('Failed to complete purchase. Please try again.');
       }
     } catch (error) {
-      alert('❌ Error during purchase: ' + (error as Error).message);
+      toast.error('Error during purchase: ' + (error as Error).message);
     } finally {
       setSubmittingBuy(false);
     }
   };
 
-  const handleCancelListing = async (id: string) => {
+  const handleCancelListing = async (listing: UserListing) => {
     if (!publicKey) {
-      alert('Please connect your wallet first');
+      toast.warning('Please connect your wallet first');
       return;
     }
 
@@ -214,16 +263,16 @@ export default function MarketplacePage() {
     }
 
     try {
-      const result = await retryOperation(() => cancelListing(publicKey, id));
+      const result = await retryOperation(() => cancelListing(publicKey, listing.id, listing.currency));
       if (result) {
-        alert(`✅ Listing cancelled!\nTransaction: ${result.hash}`);
+        toast.success(`Listing cancelled! Transaction: ${result.hash}`);
         await loadUserListings();
         await loadMarketplaceData();
       } else {
-        alert('❌ Failed to cancel listing. Please try again.');
+        toast.error('Failed to cancel listing. Please try again.');
       }
     } catch (error) {
-      alert('❌ Error cancelling listing: ' + (error as Error).message);
+      toast.error('Error cancelling listing: ' + (error as Error).message);
     }
   };
 
@@ -253,8 +302,22 @@ export default function MarketplacePage() {
               ) : (
                 <div>
                   <p className="text-sm text-gray-400 mb-1">Wallet Status</p>
-                  <p className="text-sm text-orange-400">Not Connected</p>
-                  {walletError && <p className="text-xs text-red-400 mt-2">{walletError}</p>}
+                  <p className="text-sm text-orange-400 mb-2">Not Connected</p>
+                  {walletError && (
+                    <div className="text-xs text-red-400 mb-2 whitespace-pre-line bg-red-50 p-2 rounded border border-red-200">
+                      {walletError}
+                    </div>
+                  )}
+                  <button
+                    onClick={handleConnectWallet}
+                    disabled={walletConnecting}
+                    className="px-4 py-2 bg-orange-500 hover:bg-orange-600 disabled:bg-gray-600 text-white text-sm font-semibold rounded transition-colors w-full"
+                  >
+                    {walletConnecting ? 'Connecting...' : 'Connect Wallet'}
+                  </button>
+                  <p className="text-xs text-gray-500 mt-2">
+                    Having issues? Open browser console (F12) for details.
+                  </p>
                 </div>
               )}
             </div>
@@ -431,7 +494,7 @@ export default function MarketplacePage() {
                       </p>
 
                       <button
-                        onClick={() => handleCancelListing(listing.id)}
+                        onClick={() => handleCancelListing(listing)}
                         className="w-full px-3 py-2 text-sm bg-red-50 hover:bg-red-100 text-red-600 font-semibold rounded transition-colors duration-200"
                       >
                         Cancel Listing
@@ -510,6 +573,8 @@ export default function MarketplacePage() {
           </div>
         </div>
       )}
+
+      <ToastContainer />
     </div>
   );
 }
