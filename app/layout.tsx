@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/footer";
-import Navigation from "@/components/navigation";
+import Navigation from "@/components/navigation"; // Using your Navigation component
+import { WalletProvider } from "@/components/wallet-provider"; // From main branch
+import ErrorBoundary from "@/components/error-boundary"; // From main branch
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +31,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navigation />
-        <main>{children}</main>
-        <Footer />
+        <ErrorBoundary>
+          <WalletProvider>
+            <Navigation />
+            <main>{children}</main>
+            <Footer />
+          </WalletProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
