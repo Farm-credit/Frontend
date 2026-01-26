@@ -10,11 +10,6 @@ export interface Toast {
   type: ToastType;
 }
 
-interface ToastContextType {
-  toasts: Toast[];
-  showToast: (message: string, type?: ToastType) => void;
-  removeToast: (id: string) => void;
-}
 
 let toastIdCounter = 0;
 let toastListeners: ((toasts: Toast[]) => void)[] = [];
@@ -72,21 +67,24 @@ export function ToastContainer() {
   };
 
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="fixed bottom-4 left-4 right-4 md:bottom-auto md:top-6 md:right-6 md:left-auto z-[100] space-y-3 pointer-events-none">
       {toasts.map((toast) => (
         <div
           key={toast.id}
-          className={`${getToastStyles(toast.type)} px-6 py-4 rounded-lg shadow-lg min-w-[300px] max-w-md flex items-center justify-between animate-in slide-in-from-right`}
+          className={`${getToastStyles(toast.type)} px-5 py-4 rounded-2xl shadow-2xl w-full md:w-[400px] flex items-center justify-between pointer-events-auto animate-in slide-in-from-bottom md:slide-in-from-right duration-300 border border-white/10 backdrop-blur-md`}
         >
-          <p className="flex-1">{toast.message}</p>
+          <div className="flex-1 flex gap-3 items-center">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse shrink-0"></span>
+            <p className="text-sm font-bold tracking-tight leading-tight">{toast.message}</p>
+          </div>
           <button
             onClick={() => {
               toastState = toastState.filter((t) => t.id !== toast.id);
               notifyListeners();
             }}
-            className="ml-4 text-white hover:text-gray-200 font-bold"
+            className="ml-4 w-8 h-8 rounded-full hover:bg-white/20 flex items-center justify-center transition-colors shrink-0"
           >
-            ×
+            <span className="text-xl leading-none">&times;</span>
           </button>
         </div>
       ))}

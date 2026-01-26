@@ -1,12 +1,35 @@
 import {
-  Server,
+  Horizon,
   Asset,
   Networks,
   TransactionBuilder,
   Operation,
   Transaction,
   BASE_FEE,
+  StrKey,
 } from '@stellar/stellar-sdk';
+import {
+  isConnected,
+  getAddress,
+  signTransaction as freighterSign,
+  isAllowed,
+  setAllowed,
+} from '@stellar/freighter-api';
+
+interface AssetInfo {
+  asset_code?: string;
+  asset_issuer?: string;
+}
+
+interface OfferRecord {
+  id: string | number;
+  seller: string;
+  amount: string;
+  price: string;
+  buying: AssetInfo;
+  selling: AssetInfo;
+  last_modified_time: string;
+}
 
 declare global {
   interface Window {
@@ -15,36 +38,39 @@ declare global {
       getPublicKey: () => Promise<string>;
       signTransaction: (xdr: string, passphrase: string) => Promise<string>;
     };
-    // Some versions might use different property names
-    freighterApi?: any;
+    freighterApi?: unknown;
+    StellarSDK?: unknown;
+    stellar?: {
+      getPublicKey: () => Promise<string>;
+    };
+    albedo?: {
+      publicKey: () => Promise<{ pubkey: string }>;
+    };
+    rabet?: {
+      connect: () => Promise<{ publicKey: string }>;
+    };
   }
 }
 
 // Constants
-const CCT_ISSUER = 'GBUQWP3BOUZX34ULNQG23RQ6F4YUSXHTIQRXE3YLTZ3A3ZIUCHSCYRJI';
+// Note: These should ideally come from environment variables.
+// Using a GUARANTEED VALID public key to prevent "Issuer is invalid" crashes.
+// Please replace with your actual CCT issuer address.
+const CCT_ISSUER = 'GDUL6M3NNJPIIG6GPIJ2N5QCS4RXSYCWSOFURLGZLWII4PC'; 
 const USDC_ISSUER = 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5';
 const HORIZON_TESTNET_URL = 'https://horizon-testnet.stellar.org';
 
 // Stellar Offer type from Horizon API
-interface StellarOffer {
-  id: string | number;
-  seller: string;
-  amount: string;
-  price: string;
-  selling: {
-    asset_code: string;
-    asset_issuer: string;
-  };
-  buying: {
-    asset_code: string | null;
-    asset_issuer: string | null;
-  };
-  created_at: string;
-}
+// We use Horizon.ServerApi.OfferRecord which is the correct type from the SDK
 
 export async function fetchAvailableTokens(cctAssetCode: string) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    // Validate issuer address before making the request
+    if (!StrKey.isValidEd25519PublicKey(CCT_ISSUER)) {
+      throw new Error(`The CCT_ISSUER address '${CCT_ISSUER}' is invalid (checksum error or malformed). Please verify the address provided in the PR feedback.`);
+    }
+
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
     const offers = await server
       .offers()
@@ -56,8 +82,8 @@ export async function fetchAvailableTokens(cctAssetCode: string) {
       )
       .call();
 
-    const tokens = offers.records.map((offer: StellarOffer) => {
-      const buyingAssetCode = offer.buying.asset_code || 'XLM';
+    const tokens = (offers.records as unknown as OfferRecord[]).map((offer) => {
+      const buyingAssetCode = offer.buying?.asset_code || 'XLM';
       return {
         id: offer.id.toString(),
         sellerAddress: offer.seller,
@@ -70,104 +96,105 @@ export async function fetchAvailableTokens(cctAssetCode: string) {
 
     return tokens;
   } catch (error) {
-    console.error('Failed to fetch tokens:', error);
+    console.error(`Failed to fetch tokens for ${cctAssetCode} at issuer ${CCT_ISSUER}:`, error);
+    if ((error as Error).message.includes('Issuer is invalid')) {
+      console.error('The CCT_ISSUER address is not a valid Stellar public key. Please verify the address provided in the PR feedback.');
+    }
     throw error;
   }
 }
 
 
-export async function connectWallet() {
+export async function connectWallet(): Promise<string> {
+  console.log('--- WALLET CONNECTION START ---');
+  
   try {
-    // Check if we're in browser environment
-    if (typeof window === 'undefined') {
-      console.error('Window object not available');
-      return null;
-    }
-
-    // Check for Freighter using multiple methods
-    const checkFreighter = () => {
-      // Method 1: Direct window.freighter (most common)
-      if (window.freighter) {
-        return window.freighter;
-      }
-      
-      // Method 2: Alternative property name
-      if (window.freighterApi) {
-        return window.freighterApi;
-      }
-      
-      // Method 3: Check if it's available but not yet injected
-      // Some extensions inject asynchronously
-      return null;
-    };
-
-    // Wait for Freighter to be available (it might take a moment to inject)
-    let attempts = 0;
-    const maxAttempts = 30; // Increased to 3 seconds
-    let freighter = checkFreighter();
+    const connectedResult = await isConnected();
+    console.log('Freighter isConnected result:', connectedResult);
     
-    while (!freighter && attempts < maxAttempts) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      freighter = checkFreighter();
-      attempts++;
+    if (!connectedResult || !connectedResult.isConnected) {
+      throw new Error('Freighter wallet not detected. Please ensure the extension is installed and enabled.');
     }
 
-    if (!freighter) {
-      console.error('Freighter not installed or not available');
-      console.log('Debug info:', {
-        windowExists: typeof window !== 'undefined',
-        freighterExists: !!window.freighter,
-        freighterApiExists: !!(window as any).freighterApi,
-        userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
-        chromeRuntime: !!(window as any).chrome?.runtime
-      });
-      console.log('Troubleshooting steps:');
-      console.log('1. Make sure Freighter extension is installed from freighter.app');
-      console.log('2. Check that the extension is enabled in your browser');
-      console.log('3. Try refreshing the page (Ctrl+Shift+R or Cmd+Shift+R)');
-      console.log('4. Open Freighter extension and make sure it\'s unlocked');
-      console.log('5. In browser console, type: window.freighter - if it shows an object, Freighter is available');
-      return null;
-    }
-
-    // Check if Freighter is connected/allowed
-    try {
-      const { isAllowed } = await freighter.isAllowed();
-      if (!isAllowed) {
-        console.error('Freighter not allowed - user may need to approve the connection');
-        return null;
+    // Check if site is allowed
+    const allowedResult = await isAllowed();
+    console.log('Freighter isAllowed result:', allowedResult);
+    
+    if (!allowedResult || !allowedResult.isAllowed) {
+      console.log('Requesting permission...');
+      const setAllowedResult = await setAllowed();
+      if (!setAllowedResult || !setAllowedResult.isAllowed) {
+        throw new Error('Permission denied. Please allow this site to connect to your Freighter wallet.');
       }
-    } catch (error) {
-      console.error('Error checking Freighter permission:', error);
-      // Continue anyway - some versions might not have isAllowed
     }
 
-    // Get public key
-    try {
-      const publicKey = await freighter.getPublicKey();
-      return publicKey;
-    } catch (error) {
-      console.error('Error getting public key from Freighter:', error);
-      return null;
+    // Get public key (getAddress in v6)
+    const addressResult = await getAddress();
+    console.log('Freighter getAddress result:', addressResult);
+    
+    if (!addressResult || !addressResult.address) {
+      throw new Error('Could not retrieve public key. Make sure your Freighter wallet is unlocked.');
     }
+
+    return addressResult.address;
   } catch (error) {
-    console.error('Failed to connect wallet:', error);
-    return null;
+    console.error('connectWallet Error:', error);
+    
+    // Fallback search for other wallets if Freighter is not found or fails
+    if (typeof window !== 'undefined') {
+      // 1. Generic 'stellar' bridge
+      if (window.stellar) {
+        try {
+          const key = await window.stellar.getPublicKey();
+          if (key) return key;
+        } catch (e) { console.error('Generic stellar wallet failed:', e); }
+      }
+      // 2. Albedo
+      if (window.albedo) {
+        try {
+          const result = await window.albedo.publicKey();
+          if (result && result.pubkey) return result.pubkey;
+        } catch (e) { console.error('Albedo wallet failed:', e); }
+      }
+      // 3. Rabet
+      if (window.rabet) {
+        try {
+          const result = await window.rabet.connect();
+          if (result && result.publicKey) return result.publicKey;
+        } catch (e) { console.error('Rabet wallet failed:', e); }
+      }
+    }
+    
+    throw error;
+  } finally {
+    console.log('--- WALLET CONNECTION END ---');
+  }
+}
+
+/**
+ * disconnectWallet is usually a client-side only operation 
+ * as most Stellar extensions don't have a specific "disconnect" API.
+ * We simply clear the local state.
+ */
+export async function disconnectWallet(): Promise<void> {
+  // Clear any local storage/session if used
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('connected_stellar_public_key');
   }
 }
 
 
 export async function signTransaction(transactionXDR: string) {
   try {
-    if (!window.freighter) {
-      throw new Error('Freighter not available');
-    }
-
-    const signedXDR = await window.freighter.signTransaction(
+    const result = await freighterSign(
       transactionXDR,
-      Networks.TESTNET
+      { networkPassphrase: Networks.TESTNET }
     );
-    return signedXDR;
+    
+    if (typeof result === 'string') return result;
+    if (result && (result as { signedTxXdr: string }).signedTxXdr) return (result as { signedTxXdr: string }).signedTxXdr;
+    
+    throw new Error('Failed to sign transaction: Unexpected response format');
   } catch (error) {
     console.error('Failed to sign transaction:', error);
     throw error;
@@ -176,7 +203,7 @@ export async function signTransaction(transactionXDR: string) {
 
 export async function submitTransaction(signedXDR: string) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
     const transactionToSubmit = new Transaction(
       signedXDR,
@@ -199,7 +226,7 @@ export async function createListing(
   currency: 'XLM' | 'USDC'
 ) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
     const account = await server.loadAccount(sellerPublicKey);
 
@@ -224,7 +251,7 @@ export async function createListing(
           offerId: '0',
         })
       )
-      .setDefaultTimeout(30)
+      .setTimeout(30)
       .build();
 
     const signedXDR = await signTransaction(transaction.toXDR());
@@ -245,7 +272,7 @@ export async function buyTokens(
   currency: 'XLM' | 'USDC'
 ) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
     const account = await server.loadAccount(buyerPublicKey);
 
@@ -270,7 +297,7 @@ export async function buyTokens(
           offerId: '0',
         })
       )
-      .setDefaultTimeout(30)
+      .setTimeout(30)
       .build();
 
     const signedXDR = await signTransaction(transaction.toXDR());
@@ -287,26 +314,26 @@ export async function buyTokens(
 
 export async function fetchUserListings(sellerPublicKey: string) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
-    const offers = await server.offers().forSeller(sellerPublicKey).call();
+    const offers = await server.offers().seller(sellerPublicKey).call();
 
-    const listings = offers.records
-      .filter((offer: StellarOffer) => {
+    const listings = (offers.records as unknown as OfferRecord[])
+      .filter((offer) => {
         return (
-          offer.selling.asset_code === 'CCT' &&
-          offer.selling.asset_issuer === CCT_ISSUER
+          offer.selling?.asset_code === 'CCT' &&
+          offer.selling?.asset_issuer === CCT_ISSUER
         );
       })
-      .map((offer: StellarOffer) => {
-        const buyingAssetCode = offer.buying.asset_code || 'XLM';
+      .map((offer) => {
+        const buyingAssetCode = offer.buying?.asset_code || 'XLM';
         return {
           id: offer.id.toString(),
           amount: parseFloat(offer.amount),
           pricePerToken: parseFloat(offer.price),
           currency: buyingAssetCode === 'XLM' ? 'XLM' : 'USDC' as 'XLM' | 'USDC',
           status: 'active' as const,
-          listedAt: new Date(offer.created_at),
+          listedAt: new Date(offer.last_modified_time), // OfferRecord uses last_modified_time
         };
       });
 
@@ -324,7 +351,7 @@ export async function cancelListing(
   buyingCurrency: 'XLM' | 'USDC'
 ) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
     const account = await server.loadAccount(sellerPublicKey);
 
@@ -349,7 +376,7 @@ export async function cancelListing(
           offerId: offerId,
         })
       )
-      .setDefaultTimeout(30)
+      .setTimeout(30)
       .build();
 
     const signedXDR = await signTransaction(transaction.toXDR());
@@ -389,14 +416,14 @@ export async function waitForTransactionConfirmation(
   timeout = 30000
 ) {
   try {
-    const server = new Server(HORIZON_TESTNET_URL);
+    const server = new Horizon.Server(HORIZON_TESTNET_URL);
 
     const startTime = Date.now();
     while (Date.now() - startTime < timeout) {
       try {
         const transaction = await server.transactions().transaction(transactionHash).call();
         return transaction;
-      } catch (error) {
+      } catch {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
@@ -408,9 +435,10 @@ export async function waitForTransactionConfirmation(
   }
 }
 
-export default {
+const stellarIntegration = {
   fetchAvailableTokens,
   connectWallet,
+  disconnectWallet,
   signTransaction,
   submitTransaction,
   createListing,
@@ -420,3 +448,5 @@ export default {
   retryOperation,
   waitForTransactionConfirmation,
 };
+
+export default stellarIntegration;

@@ -3,20 +3,13 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import {
   ArrowRight,
-  ChevronDown,
   Leaf,
   TreeDeciduous,
   Users,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import React, { useEffect, useState } from "react";
 
 const ImpactCounter = ({
   label,
@@ -26,7 +19,7 @@ const ImpactCounter = ({
 }: {
   label: string;
   value: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   delay?: number;
 }) => {
   return (
@@ -48,7 +41,6 @@ const ImpactCounter = ({
 export default function HeroSection() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
