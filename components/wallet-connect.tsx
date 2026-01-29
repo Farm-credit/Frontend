@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getWalletState, connectWallet, disconnectWallet } from '@/lib/wallet';
+import showToast from '@/components/simple-toast';
 
 interface WalletConnectProps {
   onConnect?: (publicKey: string) => void;
@@ -17,9 +18,13 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
-    const wallet = getWalletState();
-    setIsConnected(wallet.isConnected);
-    setPublicKey(wallet.publicKey);
+    const fetchState = async () => {
+      const wallet = await getWalletState();
+      setIsConnected(wallet.isConnected);
+      setPublicKey(wallet.publicKey);
+    };
+
+    fetchState();
   }, []);
 
   const handleConnect = async () => {
@@ -33,7 +38,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
       }
     } catch (error) {
       console.error('Failed to connect wallet:', error);
-      alert('Please install Freighter wallet to connect. Visit https://freighter.app');
+      showToast('Please install Freighter wallet to connect. Visit https://freighter.app', 'error');
     } finally {
       setIsConnecting(false);
     }

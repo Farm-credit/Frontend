@@ -15,36 +15,31 @@ export function useAccount(): Account | null {
   const [account, setAccount] = useState<Account | null>(null);
 
   useEffect(() => {
-    const wallet = getWalletState();
-    
-    if (wallet.isConnected && wallet.publicKey) {
-      setAccount({
-        publicKey: wallet.publicKey,
-        address: wallet.publicKey,
-        displayName: `${wallet.publicKey.slice(0, 6)}...${wallet.publicKey.slice(-4)}`,
-      });
-    } else {
-      setAccount(null);
-    }
+    let mounted = true;
 
-    // Listen for storage changes (when wallet connects/disconnects in another tab)
-    const handleStorageChange = () => {
-      const updatedWallet = getWalletState();
-      if (updatedWallet.isConnected && updatedWallet.publicKey) {
-        setAccount({
-          publicKey: updatedWallet.publicKey,
-          address: updatedWallet.publicKey,
-          displayName: `${updatedWallet.publicKey.slice(0, 6)}...${updatedWallet.publicKey.slice(-4)}`,
-        });
-      } else {
+    const fetchWallet = async () => {
+      try {
+        const wallet = await getWalletState();
+        if (!mounted) return;
+        if (wallet.isConnected && wallet.publicKey) {
+          setAccount({
+            publicKey: wallet.publicKey,
+            address: wallet.publicKey,
+            displayName: `${wallet.publicKey.slice(0, 6)}...${wallet.publicKey.slice(-4)}`,
+          });
+        } else {
+          setAccount(null);
+        }
+      } catch (e) {
+        if (!mounted) return;
         setAccount(null);
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    
+    fetchWallet();
+
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      mounted = false;
     };
   }, []);
 

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { connectWallet } from '@/lib/wallet';
+import showToast from '@/components/simple-toast';
 
 interface ConnectButtonProps {
   label?: string;
@@ -23,16 +24,12 @@ export const ConnectButton: React.FC<ConnectButtonProps> = ({
       if (wallet.publicKey && onConnect) {
         onConnect(wallet.publicKey);
       }
-      // Refresh the page to update wallet state
-      if (wallet.publicKey) {
-        window.location.reload();
-      }
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       const errorMessage = error instanceof Error
         ? error.message
         : 'Failed to connect wallet. Please try again.';
-      alert(errorMessage);
+      showToast(errorMessage, 'error');
     } finally {
       setIsConnecting(false);
     }

@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getWalletState } from '@/lib/wallet';
+import showToast from '@/components/simple-toast';
+import { ErrorBoundary } from '@/components/error-boundary';
 import {
   getCCTTokenBalance,
   getTransactionHistory,
@@ -12,21 +14,15 @@ import {
 } from '@/lib/stellar';
 import { StatsCard } from '@/components/dashboard/stats-card';
 import { TransactionTable } from '@/components/dashboard/transaction-table';
-import { ImpactCharts } from '@/components/dashboard/impact-charts';
+import dynamic from 'next/dynamic';
+// Dynamically import ImpactCharts on the client to avoid SSR/hydration issues with Recharts
+const ImpactCharts = dynamic(
+  () => import('@/components/dashboard/impact-charts').then((mod) => mod.ImpactCharts),
+  { ssr: false }
+);
 import { RetireTokensButton } from '@/components/dashboard/retire-tokens-button';
 import { WalletPrompt } from '@/components/dashboard/wallet-prompt';
-
-interface DashboardData {
-  tokenBalance: string;
-  co2Offset: string;
-  treesFunded: number;
-  transactions: Transaction[];
-  monthlyData: Array<{
-    month: string;
-    contributions: number;
-    co2Offset: number;
-  }>;
-}
+import type { DashboardData } from '@/types/dashboard';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -44,8 +40,8 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const checkWallet = () => {
-      const wallet = getWalletState();
+    const checkWallet = async () => {
+      const wallet = await getWalletState();
       if (!wallet.isConnected || !wallet.publicKey) {
         // Show wallet connection prompt
         setShowWalletPrompt(true);
@@ -124,13 +120,17 @@ export default function DashboardPage() {
     }
   };
 
-  const handleRetireTokens = async () => {
+  const handleRetireTokens = async (amount: number) => {
     if (!publicKey) return;
 
-    // TODO: Implement token retirement logic
-    
-    
-    alert('Token retirement functionality will be implemented with Soroban contract integration.');
+    try {
+      // TODO: Implement token retirement logic (placeholder)
+      console.log('Retiring tokens:', amount, 'for', publicKey);
+      showToast(`Retired ${amount} tokens (simulated)`, 'success');
+    } catch (err) {
+      console.error('Error retiring tokens:', err);
+      showToast('Failed to retire tokens. Please try again.', 'error');
+    }
   };
 
   const handleWalletConnect = (publicKey: string) => {
@@ -289,10 +289,12 @@ export default function DashboardPage() {
 
         {/* Charts */}
         <div className="mb-8">
-          <ImpactCharts
-            monthlyData={data.monthlyData}
-            isLoading={isLoading}
-          />
+          <ErrorBoundary>
+            <ImpactCharts
+              monthlyData={data.monthlyData}
+              isLoading={isLoading}
+            />
+          </ErrorBoundary>
         </div>
 
         {/* Transaction History */}

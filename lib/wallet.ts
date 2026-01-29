@@ -43,19 +43,34 @@ export const isFreighterAvailable = async (): Promise<boolean> => {
   }
 };
 
-export const getWalletState = (): WalletState => {
+export const getWalletState = async (): Promise<WalletState> => {
   if (typeof window === 'undefined') {
     return { isConnected: false, publicKey: null, address: null };
   }
 
-  const publicKey = localStorage.getItem('wallet_public_key');
-  const address = localStorage.getItem('wallet_address');
-  
-  return {
-    isConnected: !!publicKey,
-    publicKey,
-    address,
-  };
+  try {
+    const connected = await isConnected();
+
+    // Try to read public key from injected Freighter if available (non-prompting when possible)
+    let publicKey: string | null = null;
+    try {
+      const win = window as any;
+      if (win.freighter && typeof win.freighter.getPublicKey === 'function') {
+        // Some Freighter versions expose a sync getter for public key
+        publicKey = win.freighter.getPublicKey();
+      }
+    } catch (err) {
+      // ignore - best-effort only
+    }
+
+    return {
+      isConnected: !!connected,
+      publicKey,
+      address: publicKey,
+    };
+  } catch (err) {
+    return { isConnected: false, publicKey: null, address: null };
+  }
 };
 
 export const connectWallet = async (): Promise<WalletState> => {
@@ -80,9 +95,6 @@ export const connectWallet = async (): Promise<WalletState> => {
     }
     
     if (access.address) {
-      localStorage.setItem('wallet_public_key', access.address);
-      localStorage.setItem('wallet_address', access.address);
-      
       return {
         isConnected: true,
         publicKey: access.address,
@@ -115,6 +127,6 @@ export const connectWallet = async (): Promise<WalletState> => {
 };
 
 export const disconnectWallet = (): void => {
-  localStorage.removeItem('wallet_public_key');
-  localStorage.removeItem('wallet_address');
+  // Freighter manages session state. No localStorage caching used.
+  // Keep as a no-op so UI code can call this to clear client state.
 };

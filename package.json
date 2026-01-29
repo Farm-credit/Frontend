@@ -14,7 +14,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^2.15.4",
-    "stellar-sdk": "^11.3.0"
+    "@stellar/stellar-sdk": "^11.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
