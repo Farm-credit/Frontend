@@ -3,6 +3,12 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #059669;
+  --primary-foreground: #ffffff;
+  --secondary: #ecfccb;
+  --secondary-foreground: #1a2e05;
+  --accent: #f0fdf4;
+  --accent-foreground: #166534;
 }
 
 @theme inline {
@@ -14,8 +20,14 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #022c22;
     --foreground: #ededed;
+    --primary: #10b981;
+    --primary-foreground: #022c22;
+    --secondary: #3f6212;
+    --secondary-foreground: #ecfccb;
+    --accent: #064e3b;
+    --accent-foreground: #a7f3d0;
   }
 }
 
