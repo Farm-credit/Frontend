@@ -64,4 +64,3 @@ export const FAQItem: React.FC<FAQItemProps> = ({
     </div>
   );
 };
-
