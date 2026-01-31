@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 
 // FAQ Item Component
 interface FAQItemProps {
@@ -63,4 +64,3 @@ export const FAQItem: React.FC<FAQItemProps> = ({
     </div>
   );
 };
-

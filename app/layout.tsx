@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/footer";
-import Header from "@/components/header";
-import { WalletProvider } from "@/components/wallet-provider";
-import ErrorBoundary from "@/components/error-boundary";
+import Navigation from "@/components/navigation"; // Using your Navigation component
+import { WalletProvider } from "@/components/wallet-provider"; // From main branch
+import ErrorBoundary from "@/components/error-boundary"; // From main branch
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,9 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FarmCredit - Donate & Earn Carbon Credit Tokens",
-  description:
-    "Support environmental projects and receive Carbon Credit Tokens on the Stellar blockchain",
+  title: "Farm Credit - Carbon Credit Marketplace",
+  description: "Trade carbon credit tokens directly with other users on our peer-to-peer marketplace",
 };
 
 export default function RootLayout({
@@ -34,7 +33,7 @@ export default function RootLayout({
       >
         <ErrorBoundary>
           <WalletProvider>
-            <Header />
+            <Navigation />
             <main>{children}</main>
             <Footer />
           </WalletProvider>
