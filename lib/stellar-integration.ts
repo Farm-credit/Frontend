@@ -7,6 +7,7 @@ import {
   Transaction,
   BASE_FEE,
   StrKey,
+  Memo,
 } from '@stellar/stellar-sdk';
 import {
   isConnected,
@@ -390,6 +391,43 @@ export async function cancelListing(
   }
 }
 
+/**
+ * Retire (burn) CCT tokens by sending them to the issuer account.
+ * On Stellar, burning is achieved by sending the asset back to its issuer.
+ * The transaction memo is set to "retirement" so it is picked up by the
+ * transaction-history parser as a Retirement event.
+ */
+export async function retireTokens(
+  userPublicKey: string,
+  amount: number
+): Promise<{ hash: string }> {
+  const server = new Horizon.Server(HORIZON_TESTNET_URL);
+  const account = await server.loadAccount(userPublicKey);
+
+  const cct = new Asset('CCT', CCT_ISSUER);
+
+  const transaction = new TransactionBuilder(account, {
+    fee: BASE_FEE,
+    networkPassphrase: Networks.TESTNET,
+  })
+    .addOperation(
+      Operation.payment({
+        destination: CCT_ISSUER,
+        asset: cct,
+        amount: amount.toFixed(7),
+      })
+    )
+    .addMemo(Memo.text('retirement'))
+    .setTimeout(30)
+    .build();
+
+  const signedXDR = await signTransaction(transaction.toXDR());
+  if (!signedXDR) throw new Error('Failed to sign retirement transaction');
+
+  const result = await submitTransaction(signedXDR);
+  return { hash: result.hash };
+}
+
 export async function retryOperation<T>(
   operation: () => Promise<T>,
   maxRetries = 3,
@@ -445,6 +483,7 @@ const stellarIntegration = {
   buyTokens,
   fetchUserListings,
   cancelListing,
+  retireTokens,
   retryOperation,
   waitForTransactionConfirmation,
 };

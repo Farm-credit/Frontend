@@ -21,6 +21,7 @@ const ImpactCharts = dynamic(
   { ssr: false }
 );
 import { RetireTokensButton } from '@/components/dashboard/retire-tokens-button';
+import { RetirementModal } from '@/components/dashboard/retirement-modal';
 import { WalletPrompt } from '@/components/dashboard/wallet-prompt';
 import type { DashboardData } from '@/types/dashboard';
 
@@ -30,6 +31,7 @@ export default function DashboardPage() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [publicKey, setPublicKey] = useState<string | null>(null);
   const [showWalletPrompt, setShowWalletPrompt] = useState(false);
+  const [showRetireModal, setShowRetireModal] = useState(false);
   const [data, setData] = useState<DashboardData>({
     tokenBalance: '0',
     co2Offset: '0',
@@ -122,15 +124,15 @@ export default function DashboardPage() {
 
   const handleRetireTokens = async (amount: number) => {
     if (!publicKey) return;
+    // Opened via modal now — kept for legacy RetireTokensButton compatibility
+    setShowRetireModal(true);
+    void amount;
+  };
 
-    try {
-      // TODO: Implement token retirement logic (placeholder)
-      console.log('Retiring tokens:', amount, 'for', publicKey);
-      showToast(`Retired ${amount} tokens (simulated)`, 'success');
-    } catch (err) {
-      console.error('Error retiring tokens:', err);
-      showToast('Failed to retire tokens. Please try again.', 'error');
-    }
+  const handleRetireSuccess = (txHash: string, amount: number) => {
+    showToast(`Successfully retired ${amount} CCT tokens`, 'success');
+    if (publicKey) loadDashboardData(publicKey);
+    void txHash;
   };
 
   const handleWalletConnect = (publicKey: string) => {
@@ -281,11 +283,24 @@ export default function DashboardPage() {
 
         {/* Retire Tokens Button */}
         <div className="mb-8 flex justify-center md:justify-start">
-          <RetireTokensButton
-            onRetire={handleRetireTokens}
+          <button
+            onClick={() => setShowRetireModal(true)}
             disabled={isLoading || parseFloat(data.tokenBalance) === 0}
-          />
+            className="px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg shadow-md hover:from-green-700 hover:to-green-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+          >
+            🌿 Retire Tokens
+          </button>
         </div>
+
+        {/* Retirement Modal */}
+        {showRetireModal && publicKey && (
+          <RetirementModal
+            publicKey={publicKey}
+            tokenBalance={data.tokenBalance}
+            onClose={() => setShowRetireModal(false)}
+            onSuccess={handleRetireSuccess}
+          />
+        )}
 
         {/* Charts */}
         <div className="mb-8">
